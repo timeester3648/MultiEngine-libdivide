@@ -21,3 +21,9 @@ CTestTestfile.cmake
 .vscode/*
 !.vscode/extensions.json
 !.vscode/cmake-variants.json
+
+# exclude project files
+**.sln
+**.vcxproj
+**.vcxproj.user
+**.vcxproj.filters
