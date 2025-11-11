@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(LIBDIVIDE_VERSION "5.1")
+set(LIBDIVIDE_VERSION "5.2.0")
 project(libdivide C CXX)
 
 include(CheckCXXCompilerFlag)
@@ -37,6 +37,7 @@ endif()
 
 option(LIBDIVIDE_BUILD_TESTS   "Build the test programs" "${MAIN_PROJECT}")
 option(LIBDIVIDE_BUILD_FUZZERS "Build the fuzzers (requires clang)" OFF)
+option(LIBDIVIDE_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
 
 # By default we automatically enable vectors supported by
 # the host CPU. You may also set these explicitly to OFF or ON.
@@ -97,10 +98,10 @@ if (LIBDIVIDE_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         #include <arm_neon.h>
         int main()
         {
-            #if !defined(__ARM_NEON)
-                #error not ARM NEON CPU architecture
-            #endif
-            return 0;
+            int32x4_t a = vdupq_n_s32(0);
+            /* only available on AArch64 */
+            vuzp2q_s32(a, a);
+            return *(int *)&a;
         }"
         CPU_ARM_NEON)
     if (CPU_X86 OR CPU_ARM_NEON)
@@ -164,6 +165,8 @@ else()
     int main()
     {
         int32x4_t a = vdupq_n_s32(0);
+        /* only available on AArch64 */
+        vuzp2q_s32(a, a);
         return *(int *)&a;
     }")
     if (CMAKE_CROSSCOMPILING)
@@ -238,7 +241,9 @@ endif()
 add_library(libdivide INTERFACE)
 add_library(libdivide::libdivide ALIAS libdivide)
 
-include(CMakeSanitize)
+if (LIBDIVIDE_ENABLE_SANITIZERS)
+  include(CMakeSanitize)
+endif()
 
 target_compile_features(libdivide INTERFACE cxx_alias_templates)
 

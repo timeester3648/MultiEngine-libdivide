@@ -64,7 +64,7 @@ void launch_test_thread(std::vector<std::thread> &test_threads) {
     test_threads.emplace_back(run_test<_IntT>);
 }
 
-extern "C" int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     bool default_do_test = (argc <= 1);
     std::vector<bool> do_tests(6, default_do_test);
 
@@ -100,6 +100,7 @@ extern "C" int main(int argc, char *argv[]) {
         }
     }
 
+    std::cout << "Testing libdivide v" << LIBDIVIDE_VERSION << std::endl;
     std::string vecTypes = "";
 #if defined(LIBDIVIDE_SSE2)
     vecTypes += "sse2 ";
