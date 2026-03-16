@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(LIBDIVIDE_VERSION "5.2.0")
+set(LIBDIVIDE_VERSION "5.3.0")
 project(libdivide C CXX)
 
 include(CheckCXXCompilerFlag)
@@ -286,6 +286,8 @@ if (LIBDIVIDE_BUILD_TESTS)
 
     add_executable(tester test/tester.cpp)
     add_executable(test_c99 test/test_c99.c)
+    add_executable(test_divlu test/test_divlu.c doc/divlu.c)
+    add_executable(benchmark_divlu test/benchmark_divlu.c doc/divlu.c)
     add_executable(fast_div_generator test/fast_div_generator.cpp)
     add_executable(benchmark test/benchmark.cpp)
     add_executable(benchmark_branchfree test/benchmark_branchfree.cpp)
@@ -298,11 +300,15 @@ if (LIBDIVIDE_BUILD_TESTS)
 
     target_compile_options(tester PRIVATE "${LIBDIVIDE_FLAGS}" "${NO_VECTORIZE}")
     target_compile_options(test_c99 PRIVATE "${LIBDIVIDE_FLAGS}" "${NO_VECTORIZE}")
+    target_compile_options(test_divlu PRIVATE "${LIBDIVIDE_FLAGS}")
+    target_compile_options(benchmark_divlu PRIVATE "${LIBDIVIDE_FLAGS}" "-Wno-pedantic")
     target_compile_options(fast_div_generator PRIVATE "${LIBDIVIDE_FLAGS}" "${NO_VECTORIZE}")
     target_compile_options(benchmark PRIVATE "${LIBDIVIDE_FLAGS}" "${NO_VECTORIZE_C}")
     target_compile_options(benchmark_branchfree PRIVATE "${LIBDIVIDE_FLAGS}" "${NO_VECTORIZE}")
     set_property(TARGET benchmark_branchfree PROPERTY CXX_STANDARD 11)
     set_property(TARGET test_c99 PROPERTY C_STANDARD 99)
+    set_property(TARGET test_divlu PROPERTY C_STANDARD 99)
+    set_property(TARGET benchmark_divlu PROPERTY C_STANDARD 99)
 
     target_compile_definitions(tester PRIVATE "${LIBDIVIDE_ASSERTIONS}" "${LIBDIVIDE_VECTOR_EXT}")
     target_compile_definitions(test_c99 PRIVATE "${LIBDIVIDE_ASSERTIONS}" "${LIBDIVIDE_VECTOR_EXT}")
@@ -325,6 +331,10 @@ if (LIBDIVIDE_BUILD_TESTS)
     add_test(test_c99 test_c99)
     add_test(build_test_c99 "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_c99)
     set_tests_properties(test_c99 PROPERTIES DEPENDS "build_test_c99")
+
+    add_test(test_divlu test_divlu)
+    add_test(build_test_divlu "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_divlu)
+    set_tests_properties(test_divlu PROPERTIES DEPENDS "build_test_divlu")
 
     # Only benchmark in release builds.
     if("${BUILD_TYPE}" MATCHES RELEASE)

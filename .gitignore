@@ -21,6 +21,12 @@ CTestTestfile.cmake
 .vscode/*
 !.vscode/extensions.json
 !.vscode/cmake-variants.json
+.claude
+
+# AFL
+divlu_fuzz
+in/
+test/divlu_fuzz_outputs/
 
 # exclude project files
 **.sln
